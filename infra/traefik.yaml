@@ -35,6 +35,8 @@ services:
         constraints:
           - node.role == manager
           # - node.labels.tier == gateway  # habilite para fixar em nó dedicado de infra
+      labels:
+        - "traefik.enable=false"
 
 volumes:
   traefik_certificates:
