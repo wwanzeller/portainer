@@ -7,9 +7,9 @@ set -euo pipefail
 # - (Opcional) Aplica labels de tier no node local
 # - Faz deploy do Traefik e Portainer
 #
-# Uso: ./scripts/iniciar.sh --env-file .env
+# Uso: ./iniciar.sh --env-file .env
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$ROOT/.env"
 ENV_EXAMPLE="$ROOT/.env.example"
 PORTAINER_BOOTSTRAP_NAME="${PORTAINER_BOOTSTRAP_NAME:-portainer-bootstrap}"
@@ -72,6 +72,24 @@ get_env_var() {
   eval "printf '%s' \"\${$key-}\""
 }
 
+prompt_yes_no() {
+  local question="$1"
+  local answer=""
+  if [ ! -r /dev/tty ]; then
+    echo "Sem TTY para prompt. Use --env-file ou crie o .env manualmente." >&2
+    exit 1
+  fi
+  read -r -p "${question} [s/N]: " answer < /dev/tty || true
+  case "${answer}" in
+    [sS][iI][mM]|[sS])
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 prompt_value() {
   local __var="$1"
   local label="$2"
@@ -101,9 +119,14 @@ create_env_from_example() {
     exit 1
   fi
   echo "Arquivo .env não encontrado. Vamos criar via prompt..."
-  echo "Vamos pedir DOMINIO, EMAIL_GERAL, USUARIO e SENHA_GERAL; os demais usam o padrão do .env.example."
+  local required_keys=(USUARIO SENHA_GERAL)
+  if prompt_yes_no "O domínio já está apontado para este servidor"; then
+    echo "Ok. Vamos pedir DOMINIO, EMAIL_GERAL e PORTAINER_HOST."
+    required_keys+=(DOMINIO EMAIL_GERAL PORTAINER_HOST)
+  else
+    echo "Sem domínio configurado. Usando valores padrão do .env.example para DOMINIO/EMAIL/PORTAINER_HOST."
+  fi
   mkdir -p "$(dirname "$ENV_FILE")"
-  local required_keys=(DOMINIO EMAIL_GERAL USUARIO SENHA_GERAL)
   local env_lines=()
   while IFS= read -r line || [ -n "$line" ]; do
     line="${line#${line%%[![:space:]]*}}"

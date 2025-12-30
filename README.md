@@ -9,7 +9,8 @@ O restante das stacks deve ser instalado pelo Portainer usando o repositório pr
 
 ## Instalar (via curl)
 O instalador clona este repositório para um diretório chamado **infraestrutura** e cria o `.env` via prompt.
-Ele pergunta `DOMINIO`, `EMAIL_GERAL`, `USUARIO` e `SENHA_GERAL`; o restante usa o padrão do `.env.example`.
+Ele pergunta se o domínio já está configurado; se sim, pede `DOMINIO`, `EMAIL_GERAL` e `PORTAINER_HOST`. Sempre pede `USUARIO` e `SENHA_GERAL`.
+No final, ele já chama `./iniciar.sh` e sobe Traefik e Portainer.
 
 Exemplo padrão (cria `./infraestrutura` no diretório atual):
 ```bash
@@ -20,34 +21,35 @@ curl -fsSL https://raw.githubusercontent.com/wwanzeller/portainer/main/instalar.
 Após rodar, o diretório ficará em `./infraestrutura` e o `.env` em `./infraestrutura/.env`.
 
 ## Iniciar (Traefik + Portainer)
+O instalador já executa este passo. Se quiser rodar novamente:
 ```bash
 cd infraestrutura
-./scripts/iniciar.sh --env-file .env
+./iniciar.sh --env-file .env
 ```
 
 ## Atualizar (reiniciar serviços)
 - Todas as stacks ativas:
 ```bash
-./scripts/atualizar.sh --env-file .env
+./atualizar.sh --env-file .env
 ```
 - Apenas stacks específicas:
 ```bash
-./scripts/atualizar.sh --env-file .env infra_traefik infra_portainer
+./atualizar.sh --env-file .env infra_traefik infra_portainer
 ```
 
 ## Parar (remover stacks)
 - Todas:
 ```bash
-./scripts/parar.sh
+./parar.sh
 ```
 - Específicas:
 ```bash
-./scripts/parar.sh infra_traefik infra_portainer
+./parar.sh infra_traefik infra_portainer
 ```
 
 ## Desinstalar (remove o diretório)
 ```bash
-./scripts/desinstalar.sh
+./desinstalar.sh
 ```
 
 > **Volumes não são removidos** em nenhuma etapa.

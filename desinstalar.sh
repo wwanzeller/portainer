@@ -4,7 +4,7 @@ set -euo pipefail
 # Desinstala tudo: para stacks e remove o diretório infraestrutura.
 # Não remove volumes.
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_DIR=""
 
 usage() {
@@ -53,8 +53,8 @@ if [ ! -d "$INSTALL_DIR" ]; then
   exit 1
 fi
 
-if [ -x "$INSTALL_DIR/scripts/parar.sh" ]; then
-  "$INSTALL_DIR/scripts/parar.sh"
+if [ -x "$INSTALL_DIR/parar.sh" ]; then
+  "$INSTALL_DIR/parar.sh"
 else
   command -v docker >/dev/null 2>&1 || { echo "Falta o comando 'docker'."; exit 1; }
   mapfile -t stacks < <(docker stack ls --format '{{.Name}}')

@@ -4,7 +4,6 @@ set -euo pipefail
 # Instalador para bootstrap (clona o repo e cria o .env via prompt).
 # Uso:
 #   curl -fsSL https://raw.githubusercontent.com/wwanzeller/portainer/main/instalar.sh | bash
-#   curl -fsSL https://raw.githubusercontent.com/wwanzeller/portainer/main/instalar.sh | bash -s -- --dir /opt
 
 REPO_URL="${REPO_URL:-https://github.com/wwanzeller/portainer.git}"
 REPO_REF="${REPO_REF:-main}"
@@ -16,7 +15,7 @@ FORCE_ENV=false
 usage() {
   cat <<EOF
 Uso: $0 [--dir PATH] [--repo-url URL] [--repo-ref REF] [--env-file PATH] [--env-example PATH] [--force-env]
-  --dir PATH         Diretório base ou completo (cria <PATH>/infraestrutura se não terminar com infraestrutura)
+  --dir PATH         Diretório base ou completo (default: diretório atual)
   --repo-url URL     URL do repositório Git (default: $REPO_URL)
   --repo-ref REF     Branch/tag/commit (default: $REPO_REF)
   --env-file PATH    Caminho para o .env (default: <dir>/infraestrutura/.env)
@@ -96,6 +95,24 @@ get_env_var() {
   eval "printf '%s' \"\${$key-}\""
 }
 
+prompt_yes_no() {
+  local question="$1"
+  local answer=""
+  if [ ! -r /dev/tty ]; then
+    echo "Sem TTY para prompt. Use --env-file ou crie o .env manualmente." >&2
+    exit 1
+  fi
+  read -r -p "${question} [s/N]: " answer < /dev/tty || true
+  case "${answer}" in
+    [sS][iI][mM]|[sS])
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 prompt_value() {
   local __var="$1"
   local label="$2"
@@ -125,9 +142,14 @@ create_env_from_example() {
     exit 1
   fi
   echo "Criando .env via prompt..."
-  echo "Vamos pedir DOMINIO, EMAIL_GERAL, USUARIO e SENHA_GERAL; os demais usam o padrão do .env.example."
+  local required_keys=(USUARIO SENHA_GERAL)
+  if prompt_yes_no "O domínio já está apontado para este servidor"; then
+    echo "Ok. Vamos pedir DOMINIO, EMAIL_GERAL e PORTAINER_HOST."
+    required_keys+=(DOMINIO EMAIL_GERAL PORTAINER_HOST)
+  else
+    echo "Sem domínio configurado. Usando valores padrão do .env.example para DOMINIO/EMAIL/PORTAINER_HOST."
+  fi
   mkdir -p "$(dirname "$ENV_FILE")"
-  local required_keys=(DOMINIO EMAIL_GERAL USUARIO SENHA_GERAL)
   local env_lines=()
   while IFS= read -r line || [ -n "$line" ]; do
     line="${line#${line%%[![:space:]]*}}"
@@ -181,7 +203,7 @@ else
   git clone --branch "$REPO_REF" "$REPO_URL" "$INSTALL_DIR"
 fi
 
-chmod +x "$INSTALL_DIR"/scripts/*.sh
+chmod +x "$INSTALL_DIR"/*.sh
 
 ENV_FILE="${ENV_FILE:-$INSTALL_DIR/.env}"
 ENV_EXAMPLE="${ENV_EXAMPLE:-$INSTALL_DIR/.env.example}"
@@ -192,7 +214,5 @@ else
   echo "Usando .env existente em $ENV_FILE"
 fi
 
-echo "Instalação concluída."
-echo "Próximo passo:"
-echo "  cd $INSTALL_DIR"
-echo "  ./scripts/iniciar.sh --env-file $ENV_FILE"
+echo "Instalação concluída. Iniciando Traefik e Portainer..."
+"$INSTALL_DIR/iniciar.sh" --env-file "$ENV_FILE"

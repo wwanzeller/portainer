@@ -3,8 +3,8 @@ set -euo pipefail
 
 # Para stacks (remove do Swarm, sem apagar volumes).
 # Uso:
-#   ./scripts/parar.sh                 # para todas as stacks
-#   ./scripts/parar.sh infra_traefik   # para stacks específicas
+#   ./parar.sh                 # para todas as stacks
+#   ./parar.sh infra_traefik   # para stacks específicas
 
 usage() {
   cat <<EOF
