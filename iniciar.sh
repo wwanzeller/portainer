@@ -14,13 +14,15 @@ ENV_FILE="$ROOT/.env"
 ENV_EXAMPLE="$ROOT/.env.example"
 PORTAINER_BOOTSTRAP_NAME="${PORTAINER_BOOTSTRAP_NAME:-portainer-bootstrap}"
 APPLY_LABELS=true
+SKIP_ENV_CHECK=false
 
 usage() {
   cat <<EOF
-Uso: $0 [--env-file PATH] [--env-example PATH] [--no-labels]
+Uso: $0 [--env-file PATH] [--env-example PATH] [--no-labels] [--skip-env-check]
   --env-file PATH     Caminho para o arquivo .env (default: $ENV_FILE)
   --env-example PATH  Caminho para o .env.example (default: $ENV_EXAMPLE)
   --no-labels         Não aplica labels de tier no node local
+  --skip-env-check    Não valida o .env (evita prompt duplicado)
 EOF
   exit 1
 }
@@ -200,7 +202,11 @@ env_needs_rebuild() {
 
 command -v docker >/dev/null 2>&1 || { echo "Falta o comando 'docker'."; exit 1; }
 
-if env_needs_rebuild; then
+if [ "$SKIP_ENV_CHECK" = true ]; then
+  if [ ! -f "$ENV_FILE" ]; then
+    create_env_from_example
+  fi
+elif env_needs_rebuild; then
   create_env_from_example
 fi
 

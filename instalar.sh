@@ -251,4 +251,4 @@ else
 fi
 
 echo "Instalação concluída. Iniciando Traefik e Portainer..."
-"$INSTALL_DIR/iniciar.sh" --env-file "$ENV_FILE"
+"$INSTALL_DIR/iniciar.sh" --env-file "$ENV_FILE" --skip-env-check
