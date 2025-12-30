@@ -32,7 +32,7 @@ O script:
 
 ## Executar direto da internet (sem clonar)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/wwanzeller/infraestrutura-bootstrap/main/scripts/iniciar.sh \
+curl -fsSL https://raw.githubusercontent.com/wwanzeller/portainer/main/scripts/iniciar.sh \
 | bash -s -- --env-file /caminho/absoluto/.env
 ```
 

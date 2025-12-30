@@ -11,7 +11,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="$ROOT/.env"
-REPO_URL="${REPO_URL:-https://github.com/wwanzeller/infraestrutura-bootstrap.git}"
+REPO_URL="${REPO_URL:-https://github.com/wwanzeller/portainer.git}"
 REPO_REF="${REPO_REF:-main}"
 REPO_RAW_BASE="${REPO_RAW_BASE:-}"
 REPO_TOKEN="${REPO_TOKEN:-}"
