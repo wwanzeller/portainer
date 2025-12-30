@@ -9,7 +9,7 @@ O restante das stacks deve ser instalado pelo Portainer usando o repositório pr
 
 ## Instalar (via curl)
 O instalador clona este repositório para um diretório chamado **infraestrutura** e cria o `.env` via prompt.
-Ele pergunta se o domínio já está configurado; se sim, pede `DOMINIO`, `EMAIL_GERAL` e `PORTAINER_HOST`. Sempre pede `USUARIO` e `SENHA_GERAL`.
+Ele pergunta se o domínio já está configurado; se sim, pede `DOMINIO` e `EMAIL_GERAL`. `PORTAINER_HOST` fica como `portainer` por padrão. Sempre pede `USUARIO` e `SENHA_GERAL`.
 No final, ele já chama `./iniciar.sh` e sobe Traefik e Portainer.
 
 Exemplo padrão (cria `./infraestrutura` no diretório atual):

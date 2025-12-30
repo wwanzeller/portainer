@@ -121,10 +121,10 @@ create_env_from_example() {
   echo "Arquivo .env não encontrado. Vamos criar via prompt..."
   local required_keys=(USUARIO SENHA_GERAL)
   if prompt_yes_no "O domínio já está apontado para este servidor"; then
-    echo "Ok. Vamos pedir DOMINIO, EMAIL_GERAL e PORTAINER_HOST."
-    required_keys+=(DOMINIO EMAIL_GERAL PORTAINER_HOST)
+    echo "Ok. Vamos pedir DOMINIO e EMAIL_GERAL."
+    required_keys+=(DOMINIO EMAIL_GERAL)
   else
-    echo "Sem domínio configurado. Usando valores padrão do .env.example para DOMINIO/EMAIL/PORTAINER_HOST."
+    echo "Sem domínio configurado. Usando valores padrão do .env.example para DOMINIO/EMAIL."
   fi
   mkdir -p "$(dirname "$ENV_FILE")"
   local env_lines=()
