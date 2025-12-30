@@ -9,8 +9,15 @@ O restante das stacks deve ser instalado pelo Portainer usando o repositório pr
 
 ## Instalar (via curl)
 O instalador clona este repositório para um diretório chamado **infraestrutura** e cria o `.env` via prompt.
-Ele pergunta se o domínio já está configurado; se sim, pede `DOMINIO` e `EMAIL_GERAL`. `PORTAINER_HOST` fica como `portainer` por padrão. Sempre pede `USUARIO` e `SENHA_GERAL`.
-No final, ele já chama `./iniciar.sh` e sobe Traefik e Portainer.
+Ele pergunta se o domínio já está configurado. Se sim, pede:
+- `DOMINIO` (ex: suaempresa.com)
+- `EMAIL_GERAL` (usado pelo Let's Encrypt do Traefik)
+
+Os subdomínios padrão já vêm definidos no `.env`:
+- `TRAEFIK_DASHBOARD_HOST=traefik`
+- `PORTAINER_HOST=portainer`
+
+No final, ele chama `./iniciar.sh` e sobe Traefik e Portainer.
 
 Exemplo padrão (cria `./infraestrutura` no diretório atual):
 ```bash
@@ -55,5 +62,6 @@ cd infraestrutura
 > **Volumes não são removidos** em nenhuma etapa.
 
 ## Notas
-- O `.env` gerado aqui pode ser reutilizado nas stacks do repositório principal.
-- Para o repositório privado no Portainer, use autenticação (Username + Personal Access Token).
+- Este `.env` é apenas para Traefik e Portainer.
+- As demais stacks devem ser criadas no Portainer (Stack > Repository) usando o repositório principal e um `.env` próprio de cada stack.
+- Para repositório privado, use autenticação (Username + Personal Access Token).

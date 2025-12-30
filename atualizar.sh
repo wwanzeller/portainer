@@ -114,8 +114,8 @@ create_env_from_example() {
     echo "Arquivo .env.example não encontrado: $ENV_EXAMPLE" >&2
     exit 1
   fi
-  echo "Arquivo .env não encontrado. Vamos criar via prompt..."
-  local required_keys=(USUARIO SENHA_GERAL)
+  echo "Arquivo .env ausente ou incompleto. Vamos criar/atualizar via prompt..."
+  local required_keys=()
   if prompt_yes_no "O domínio já está apontado para este servidor"; then
     echo "Ok. Vamos pedir DOMINIO e EMAIL_GERAL."
     required_keys+=(DOMINIO EMAIL_GERAL)
@@ -158,9 +158,45 @@ create_env_from_example() {
   echo "Arquivo criado: $ENV_FILE"
 }
 
+
+env_has_extra_keys() {
+  [ -f "$ENV_FILE" ] || return 1
+  [ -f "$ENV_EXAMPLE" ] || return 1
+  local line
+  local key
+  while IFS= read -r line || [ -n "$line" ]; do
+    line="${line#${line%%[![:space:]]*}}"
+    [ -z "$line" ] && continue
+    [[ "$line" == \#* ]] && continue
+    if [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
+      key="${line%%=*}"
+      if ! grep -q "^${key}=" "$ENV_EXAMPLE"; then
+        return 0
+      fi
+    fi
+  done < "$ENV_FILE"
+  return 1
+}
+
+env_needs_rebuild() {
+  if [ ! -f "$ENV_FILE" ]; then
+    return 0
+  fi
+  set -a
+  source "$ENV_FILE"
+  set +a
+  if [ -z "${DOMINIO:-}" ] || [ -z "${EMAIL_GERAL:-}" ] || [ -z "${TRAEFIK_DASHBOARD_HOST:-}" ] || [ -z "${PORTAINER_HOST:-}" ]; then
+    return 0
+  fi
+  if env_has_extra_keys; then
+    return 0
+  fi
+  return 1
+}
+
 command -v docker >/dev/null 2>&1 || { echo "Falta o comando 'docker'."; exit 1; }
 
-if [ ! -f "$ENV_FILE" ]; then
+if env_needs_rebuild; then
   create_env_from_example
 fi
 
