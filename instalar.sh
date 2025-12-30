@@ -102,13 +102,13 @@ prompt_yes_no() {
     echo "Sem TTY para prompt. Use --env-file ou crie o .env manualmente." >&2
     exit 1
   fi
-  read -r -p "${question} [s/N]: " answer < /dev/tty || true
+  read -r -p "${question} [S/n]: " answer < /dev/tty || true
   case "${answer}" in
-    [sS][iI][mM]|[sS])
-      return 0
+    [nN][aA][oO]|[nN])
+      return 1
       ;;
     *)
-      return 1
+      return 0
       ;;
   esac
 }
@@ -150,6 +150,9 @@ create_env_from_example() {
     echo "Sem domínio configurado. Usando valores padrão do .env.example para DOMINIO/EMAIL."
   fi
   mkdir -p "$(dirname "$ENV_FILE")"
+  if [ -f "$ENV_FILE" ] && [ ! -w "$ENV_FILE" ]; then
+    chmod u+w "$ENV_FILE" 2>/dev/null || { echo "Sem permissao para escrever em $ENV_FILE"; exit 1; }
+  fi
   local env_lines=()
   while IFS= read -r line || [ -n "$line" ]; do
     line="${line#${line%%[![:space:]]*}}"
