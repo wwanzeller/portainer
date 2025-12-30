@@ -7,41 +7,50 @@ O restante das stacks deve ser instalado pelo Portainer usando o repositório pr
 - Docker instalado
 - Acesso de usuário com permissão para executar Docker
 
-## Configuração
-1) Se o arquivo `.env` não existir, os scripts perguntam os valores via prompt e criam o `.env` automaticamente (com base no `.env.example`).
-2) Se preferir, copie `.env.example` para `.env` e edite manualmente.
+## Instalar (via curl)
+O instalador clona este repositório para um diretório chamado **infraestrutura** e cria o `.env` via prompt.
 
-O `.env` gerado aqui pode ser reutilizado nas stacks do repositório principal.
+Exemplo usando `/opt/infraestrutura`:
+```bash
+curl -fsSL https://raw.githubusercontent.com/wwanzeller/portainer/main/instalar.sh \
+| bash -s -- --dir /opt
+```
+
+Após rodar, o diretório ficará em `/opt/infraestrutura` e o `.env` em `/opt/infraestrutura/.env`.
 
 ## Iniciar (Traefik + Portainer)
 ```bash
+cd /opt/infraestrutura
 ./scripts/iniciar.sh --env-file .env
 ```
 
-Se o `.env` não existir, o script vai perguntar os valores e criar o arquivo.
-
-O script:
-- Inicia o Swarm (se ainda não estiver ativo)
-- Cria as redes `traefik_public`, `wanzeller_network`, `agent_network`
-- Cria os volumes `traefik_certificates` e `portainer_data`
-- Faz o deploy de Traefik e Portainer
-
-## Atualizar (Traefik + Portainer)
+## Atualizar (reiniciar serviços)
+- Todas as stacks ativas:
 ```bash
 ./scripts/atualizar.sh --env-file .env
 ```
-
-## Encerrar (Traefik + Portainer)
+- Apenas stacks específicas:
 ```bash
-./scripts/encerrar.sh
+./scripts/atualizar.sh --env-file .env infra_traefik infra_portainer
 ```
 
-## Executar direto da internet (sem clonar)
+## Parar (remover stacks)
+- Todas:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/wwanzeller/portainer/main/scripts/iniciar.sh \
-| bash -s -- --env-file /caminho/absoluto/.env
+./scripts/parar.sh
 ```
+- Específicas:
+```bash
+./scripts/parar.sh infra_traefik infra_portainer
+```
+
+## Desinstalar (remove o diretório)
+```bash
+./scripts/desinstalar.sh
+```
+
+> **Volumes não são removidos** em nenhuma etapa.
 
 ## Notas
-- Se usar outro repositório/ref, passe `--repo-url` e `--repo-ref` nos scripts.
+- O `.env` gerado aqui pode ser reutilizado nas stacks do repositório principal.
 - Para o repositório privado no Portainer, use autenticação (Username + Personal Access Token).

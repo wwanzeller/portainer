@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Inicializa somente Traefik + Portainer usando um .env.
+# Inicializa Traefik + Portainer usando um .env.
 # - Garante Swarm ativo
 # - Cria networks padrão
 # - (Opcional) Aplica labels de tier no node local
-# - Baixa os YAMLs direto do repositório (sem clone)
 # - Faz deploy do Traefik e Portainer
 #
 # Uso: ./scripts/iniciar.sh --env-file .env
@@ -15,21 +14,13 @@ ENV_FILE="$ROOT/.env"
 ENV_EXAMPLE="$ROOT/.env.example"
 PORTAINER_BOOTSTRAP_NAME="${PORTAINER_BOOTSTRAP_NAME:-portainer-bootstrap}"
 APPLY_LABELS=true
-REPO_URL="${REPO_URL:-https://github.com/wwanzeller/portainer.git}"
-REPO_REF="${REPO_REF:-main}"
-REPO_RAW_BASE="${REPO_RAW_BASE:-}"
-REPO_TOKEN="${REPO_TOKEN:-}"
 
 usage() {
   cat <<EOF
-Uso: $0 [--env-file PATH] [--env-example PATH] [--no-labels] [--repo-url URL] [--repo-ref REF] [--raw-base URL] [--repo-token TOKEN]
+Uso: $0 [--env-file PATH] [--env-example PATH] [--no-labels]
   --env-file PATH     Caminho para o arquivo .env (default: $ENV_FILE)
   --env-example PATH  Caminho para o .env.example (default: $ENV_EXAMPLE)
   --no-labels         Não aplica labels de tier no node local
-  --repo-url URL      URL do repositório Git (default: $REPO_URL)
-  --repo-ref REF      Branch/tag/commit (default: $REPO_REF)
-  --raw-base URL      Base RAW (default: derivado do GitHub)
-  --repo-token TOKEN  Token para repositório privado (ou use REPO_TOKEN)
 EOF
   exit 1
 }
@@ -47,22 +38,6 @@ while [ $# -gt 0 ]; do
     --no-labels)
       APPLY_LABELS=false
       shift
-      ;;
-    --repo-url)
-      REPO_URL="${2:-}"
-      shift 2
-      ;;
-    --repo-ref)
-      REPO_REF="${2:-}"
-      shift 2
-      ;;
-    --raw-base)
-      REPO_RAW_BASE="${2:-}"
-      shift 2
-      ;;
-    --repo-token)
-      REPO_TOKEN="${2:-}"
-      shift 2
       ;;
     -h|--help)
       usage
@@ -159,27 +134,6 @@ if [ ! -f "$ENV_FILE" ]; then
   create_env_from_example
 fi
 
-if [ -z "$REPO_RAW_BASE" ]; then
-  REPO_PATH="${REPO_URL#https://github.com/}"
-  REPO_PATH="${REPO_PATH%.git}"
-  REPO_PATH="${REPO_PATH%/}"
-  if [ "$REPO_PATH" = "$REPO_URL" ]; then
-    echo "Repo URL não reconhecida. Informe --raw-base." >&2
-    exit 1
-  fi
-  REPO_RAW_BASE="https://raw.githubusercontent.com/${REPO_PATH}/${REPO_REF}"
-fi
-REPO_RAW_BASE="${REPO_RAW_BASE%/}"
-
-if command -v curl >/dev/null 2>&1; then
-  DOWNLOAD_TOOL="curl"
-elif command -v wget >/dev/null 2>&1; then
-  DOWNLOAD_TOOL="wget"
-else
-  echo "Falta 'curl' ou 'wget' para baixar os YAMLs." >&2
-  exit 1
-fi
-
 # Ativa Swarm se ainda não estiver ativo
 if ! docker info --format '{{.Swarm.LocalNodeState}}' 2>/dev/null | grep -qw active; then
   docker swarm init
@@ -211,41 +165,16 @@ fi
 deploy_stack() {
   local file="$1"
   local name="$2"
+  if [ ! -f "$file" ]; then
+    echo "Arquivo não encontrado: $file" >&2
+    exit 1
+  fi
   echo "==> Deploy ${name} (${file})"
   docker stack deploy --with-registry-auth -c "$file" "$name"
 }
 
-download_stack() {
-  local path="$1"
-  local dest="$2"
-  local url="${REPO_RAW_BASE}/${path}"
-  echo "==> Baixando ${url}"
-  if [ "$DOWNLOAD_TOOL" = "curl" ]; then
-    if [ -n "$REPO_TOKEN" ]; then
-      curl -fsSL -H "Authorization: token ${REPO_TOKEN}" "$url" -o "$dest"
-    else
-      curl -fsSL "$url" -o "$dest"
-    fi
-  else
-    if [ -n "$REPO_TOKEN" ]; then
-      wget -qO "$dest" --header="Authorization: token ${REPO_TOKEN}" "$url"
-    else
-      wget -qO "$dest" "$url"
-    fi
-  fi
-}
-
-TMP_DIR="$(mktemp -d)"
-cleanup() {
-  rm -rf "$TMP_DIR"
-}
-trap cleanup EXIT
-
-download_stack "infra/traefik.yaml" "$TMP_DIR/traefik.yaml"
-download_stack "infra/portainer.yaml" "$TMP_DIR/portainer.yaml"
-
-deploy_stack "$TMP_DIR/traefik.yaml" infra_traefik
-deploy_stack "$TMP_DIR/portainer.yaml" infra_portainer
+deploy_stack "$ROOT/infra/traefik.yaml" infra_traefik
+deploy_stack "$ROOT/infra/portainer.yaml" infra_portainer
 
 if docker ps --format '{{.Names}}' | grep -q "^${PORTAINER_BOOTSTRAP_NAME}$"; then
   echo "==> Removendo contêiner bootstrap ${PORTAINER_BOOTSTRAP_NAME}"
