@@ -14,7 +14,6 @@ Ele pergunta se o domínio já está configurado. Se sim, pede:
 - `EMAIL_GERAL` (usado pelo Let's Encrypt do Traefik)
 
 Os subdomínios padrão já vêm definidos no `.env`:
-- `TRAEFIK_DASHBOARD_HOST=traefik`
 - `PORTAINER_HOST=portainer`
 
 No final, ele chama `./iniciar.sh` e sobe Traefik e Portainer.
@@ -63,5 +62,6 @@ cd infraestrutura
 
 ## Notas
 - Este `.env` é apenas para Traefik e Portainer.
+- O dashboard do Traefik não é exposto.
 - As demais stacks devem ser criadas no Portainer (Stack > Repository) usando o repositório principal e um `.env` próprio de cada stack.
 - Para repositório privado, use autenticação (Username + Personal Access Token).

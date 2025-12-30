@@ -14,7 +14,6 @@ services:
       - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
       - --certificatesresolvers.le.acme.email=${EMAIL_GERAL}
       - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
-      - --api
       - --log.level=INFO
     ports:
       - target: 80
@@ -36,13 +35,6 @@ services:
         constraints:
           - node.role == manager
           # - node.labels.tier == gateway  # habilite para fixar em nó dedicado de infra
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=traefik_public
-        - traefik.http.routers.traefik.rule=Host(`${TRAEFIK_DASHBOARD_HOST}.${DOMINIO}`)
-        - traefik.http.routers.traefik.entrypoints=websecure
-        - traefik.http.routers.traefik.tls.certresolver=le
-        - traefik.http.routers.traefik.service=api@internal
 
 volumes:
   traefik_certificates:

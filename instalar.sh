@@ -214,7 +214,7 @@ env_needs_rebuild() {
   set -a
   source "$ENV_FILE"
   set +a
-  if [ -z "${DOMINIO:-}" ] || [ -z "${EMAIL_GERAL:-}" ] || [ -z "${TRAEFIK_DASHBOARD_HOST:-}" ] || [ -z "${PORTAINER_HOST:-}" ]; then
+  if [ -z "${DOMINIO:-}" ] || [ -z "${EMAIL_GERAL:-}" ] || [ -z "${PORTAINER_HOST:-}" ]; then
     return 0
   fi
   if env_has_extra_keys; then
