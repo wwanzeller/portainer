@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Instalador para bootstrap (clona o repo e cria o .env via prompt).
 # Uso:
-#   curl -fsSL https://raw.githubusercontent.com/wwanzeller/portainer/main/instalar.sh | bash
+#   curl -fsSL https://github.com/wwanzeller/portainer/raw/main/instalar.sh | bash
 
 REPO_URL="${REPO_URL:-https://github.com/wwanzeller/portainer.git}"
 REPO_REF="${REPO_REF:-main}"

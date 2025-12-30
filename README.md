@@ -14,7 +14,7 @@ No final, ele já chama `./iniciar.sh` e sobe Traefik e Portainer.
 
 Exemplo padrão (cria `./infraestrutura` no diretório atual):
 ```bash
-curl -fsSL https://raw.githubusercontent.com/wwanzeller/portainer/main/instalar.sh \
+curl -fsSL https://github.com/wwanzeller/portainer/raw/main/instalar.sh \
 | bash
 ```
 
