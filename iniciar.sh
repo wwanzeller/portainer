@@ -41,6 +41,10 @@ while [ $# -gt 0 ]; do
       APPLY_LABELS=false
       shift
       ;;
+    --skip-env-check)
+      SKIP_ENV_CHECK=true
+      shift
+      ;;
     -h|--help)
       usage
       ;;
