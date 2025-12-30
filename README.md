@@ -9,6 +9,7 @@ O restante das stacks deve ser instalado pelo Portainer usando o repositório pr
 
 ## Instalar (via curl)
 O instalador clona este repositório para um diretório chamado **infraestrutura** e cria o `.env` via prompt.
+Ele pergunta `DOMINIO`, `EMAIL_GERAL`, `USUARIO` e `SENHA_GERAL`; o restante usa o padrão do `.env.example`.
 
 Exemplo padrão (cria `./infraestrutura` no diretório atual):
 ```bash

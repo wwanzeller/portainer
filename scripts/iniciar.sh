@@ -101,7 +101,9 @@ create_env_from_example() {
     exit 1
   fi
   echo "Arquivo .env não encontrado. Vamos criar via prompt..."
+  echo "Vamos pedir DOMINIO, EMAIL_GERAL, USUARIO e SENHA_GERAL; os demais usam o padrão do .env.example."
   mkdir -p "$(dirname "$ENV_FILE")"
+  local required_keys=(DOMINIO EMAIL_GERAL USUARIO SENHA_GERAL)
   local env_lines=()
   while IFS= read -r line || [ -n "$line" ]; do
     line="${line#${line%%[![:space:]]*}}"
@@ -114,10 +116,19 @@ create_env_from_example() {
       local existing
       existing="$(get_env_var "$key")"
       local value=""
+      local should_prompt=false
+      for required in "${required_keys[@]}"; do
+        if [ "$key" = "$required" ]; then
+          should_prompt=true
+          break
+        fi
+      done
       if [ -n "$existing" ]; then
         value="$existing"
-      else
+      elif [ "$should_prompt" = true ]; then
         prompt_value value "$key" "$default"
+      else
+        value="$default"
       fi
       value="$(format_env_value "$value")"
       env_lines+=("${key}=${value}")
