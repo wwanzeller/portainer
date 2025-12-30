@@ -97,9 +97,8 @@ prompt_yes_no() {
 }
 
 prompt_value() {
-  local __var="$1"
-  local label="$2"
-  local default="$3"
+  local label="$1"
+  local default="$2"
   local value=""
   if [ ! -r /dev/tty ]; then
     echo "Sem TTY para prompt. Defina $label como variável de ambiente ou crie o .env manualmente." >&2
@@ -113,7 +112,7 @@ prompt_value() {
       read -r -p "${label}: " value < /dev/tty || true
     fi
     if [ -n "$value" ]; then
-      printf -v "$__var" '%s' "$value"
+      printf '%s' "$value"
       return
     fi
   done
@@ -158,7 +157,7 @@ create_env_from_example() {
       if [ -n "$existing" ]; then
         value="$existing"
       elif [ "$should_prompt" = true ]; then
-        prompt_value value "$key" "$default"
+        value="$(prompt_value "$key" "$default")"
       else
         value="$default"
       fi
