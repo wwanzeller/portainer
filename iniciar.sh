@@ -215,4 +215,8 @@ if docker ps --format '{{.Names}}' | grep -q "^${PORTAINER_BOOTSTRAP_NAME}$"; th
   docker rm -f "$PORTAINER_BOOTSTRAP_NAME" >/dev/null
 fi
 
-echo "Pronto. Traefik e Portainer estão no ar. Acesse ${PORTAINER_HOST:-portainer}.${DOMINIO:-example.com} via Traefik."
+if [ -n "${DOMINIO:-}" ]; then
+  echo "Pronto. Traefik e Portainer estão no ar. Acesse portainer.${DOMINIO} via Traefik."
+else
+  echo "Pronto. Traefik e Portainer estão no ar. Defina DOMINIO no .env para acessar portainer.DOMINIO."
+fi
