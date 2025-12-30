@@ -10,17 +10,17 @@ O restante das stacks deve ser instalado pelo Portainer usando o repositório pr
 ## Instalar (via curl)
 O instalador clona este repositório para um diretório chamado **infraestrutura** e cria o `.env` via prompt.
 
-Exemplo usando `/opt/infraestrutura`:
+Exemplo padrão (cria `./infraestrutura` no diretório atual):
 ```bash
 curl -fsSL https://raw.githubusercontent.com/wwanzeller/portainer/main/instalar.sh \
-| bash -s -- --dir /opt
+| bash
 ```
 
-Após rodar, o diretório ficará em `/opt/infraestrutura` e o `.env` em `/opt/infraestrutura/.env`.
+Após rodar, o diretório ficará em `./infraestrutura` e o `.env` em `./infraestrutura/.env`.
 
 ## Iniciar (Traefik + Portainer)
 ```bash
-cd /opt/infraestrutura
+cd infraestrutura
 ./scripts/iniciar.sh --env-file .env
 ```
 
