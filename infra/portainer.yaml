@@ -48,6 +48,8 @@ services:
         - "traefik.http.routers.portainer.entrypoints=websecure"
         - "traefik.http.routers.portainer.tls.certresolver=le"
         - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+        - "traefik.http.middlewares.portainer-allowed.ipallowlist.sourcerange=148.69.191.94/32"
+        - "traefik.http.routers.portainer.middlewares=portainer-allowed"
 
 networks:
   traefik_public:
